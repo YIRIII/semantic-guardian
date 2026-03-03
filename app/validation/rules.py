@@ -1,10 +1,22 @@
 from app.config import DATA_DIR
 
+_FALLBACK_RULES = """- سنوات الخبرة لا يمكن أن تتجاوز (العمر - 14).
+- العمر أقل من 18 لا يناسب غالبًا المناصب الإدارية العليا أو الاستشارية.
+- ساعات العمل الأسبوعية > 72 تعتبر غير منطقية غالبًا.
+- "دوام جزئي" عادة أقل من 40 ساعة أسبوعياً.
+- مسميات تخصصية/مرخّصة مثل (طبيب/مهندس/عالم بيانات/مستشار/مدير) تتطلب غالباً مؤهل أعلى وخبرة مناسبة.
+- دخل شهري مرتفع جدًا مع مسمى وظيفي بسيط مؤشر قوي على خطأ.
+- وجود أكثر من تناقض قوي في نفس السجل يخفض درجة الثقة العامة.
+- إذا كان التناقض بسيطًا أو محتملًا فقط، تكون الشدة low أو medium حسب قوة الدلالة."""
+
 
 def load_rules() -> str:
     path = DATA_DIR / "rules.txt"
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return _FALLBACK_RULES
 
 
 RULES_TEXT = load_rules()
