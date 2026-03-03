@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: semantic-guardian
+    runtime: docker
+    plan: free
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: TRUST_THRESHOLD
+        value: "0.7"
