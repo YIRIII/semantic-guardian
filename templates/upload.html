@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% set active = "upload" %}
+{% block title %}رفع ملف - الحارس الدلالي{% endblock %}
+
+{% block content %}
+<h1 class="page-title">رفع ملف بيانات</h1>
+
+<div class="upload-card">
+    <form id="upload-form"
+          hx-post="/api/upload"
+          hx-target="#upload-result"
+          hx-swap="innerHTML"
+          hx-encoding="multipart/form-data"
+          hx-indicator="#upload-spinner">
+
+        <div class="drop-zone" id="drop-zone">
+            <div class="drop-zone-text">
+                <p class="drop-icon">📁</p>
+                <p>اسحب الملف هنا أو اضغط للاختيار</p>
+                <p class="drop-hint">يدعم Excel (.xlsx) و CSV</p>
+            </div>
+            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="file-input" id="file-input">
+        </div>
+
+        <div id="file-name" class="file-name-display"></div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">رفع وتحقق</button>
+    </form>
+
+    <div id="upload-spinner" class="spinner-overlay htmx-indicator">
+        <div class="spinner"></div>
+        <p>جارٍ التحقق من السجلات...</p>
+    </div>
+</div>
+
+<div id="upload-result" class="result-area"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileNameDisplay = document.getElementById('file-name');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        fileNameDisplay.textContent = e.dataTransfer.files[0].name;
+    }
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+    }
+});
+</script>
+{% endblock %}

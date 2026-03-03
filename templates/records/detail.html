@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% set active = "records" %}
+{% block title %}تفاصيل السجل - الحارس الدلالي{% endblock %}
+
+{% block content %}
+{% if record %}
+<div class="detail-header">
+    <h1 class="page-title">سجل {{ record.record_id }}</h1>
+    <button class="btn"
+            hx-post="/api/records/{{ record.id }}/revalidate"
+            hx-target="#validation-result"
+            hx-swap="innerHTML">
+        إعادة التحقق
+    </button>
+</div>
+
+<div class="detail-grid">
+    <div class="detail-card">
+        <h3>البيانات الشخصية</h3>
+        <div class="detail-row"><span class="detail-label">العمر:</span> {{ record.age }}</div>
+        <div class="detail-row"><span class="detail-label">الجنس:</span> {{ record.gender }}</div>
+        <div class="detail-row"><span class="detail-label">المؤهل:</span> {{ record.education_level }}</div>
+    </div>
+    <div class="detail-card">
+        <h3>البيانات الوظيفية</h3>
+        <div class="detail-row"><span class="detail-label">المسمى الوظيفي:</span> {{ record.job_title }}</div>
+        <div class="detail-row"><span class="detail-label">سنوات الخبرة:</span> {{ record.years_of_experience }}</div>
+        <div class="detail-row"><span class="detail-label">ساعات العمل الأسبوعية:</span> {{ record.weekly_working_hours }}</div>
+        <div class="detail-row"><span class="detail-label">نوع التوظيف:</span> {{ record.employment_type }}</div>
+        <div class="detail-row"><span class="detail-label">الدخل الشهري:</span> {{ record.monthly_income }}</div>
+    </div>
+</div>
+
+<div id="validation-result">
+    <div class="validation-summary">
+        <div class="kpi-grid">
+            <div class="kpi-card {% if record.is_valid %}kpi-valid{% else %}kpi-invalid{% endif %}">
+                <div class="kpi-label">الحالة</div>
+                <div class="kpi-value">{% if record.is_valid %}صالح{% else %}غير صالح{% endif %}</div>
+            </div>
+            <div class="kpi-card kpi-trust">
+                <div class="kpi-label">درجة الثقة</div>
+                <div class="kpi-value">{{ "%.3f"|format(record.trust_score) }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">عدد المشاكل</div>
+                <div class="kpi-value">{{ record.issues_count }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">طريقة التحقق</div>
+                <div class="kpi-value" style="font-size: 1rem;">{{ record.validation_method }}</div>
+            </div>
+        </div>
+    </div>
+
+    {% if issues %}
+    <div class="section">
+        <h2>المشاكل المكتشفة</h2>
+        {% for iss in issues %}
+        <div class="issue-card severity-{{ iss.severity }}">
+            <div class="issue-header">
+                <span class="severity-badge severity-{{ iss.severity }}">{{ iss.severity }}</span>
+                <span class="issue-confidence">ثقة: {{ "%.0f"|format(iss.confidence * 100) }}%</span>
+            </div>
+            <div class="issue-fields">الحقول: {{ iss.fields | join(', ') }}</div>
+            <div class="issue-desc">{{ iss.description_ar }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<a href="/records" class="btn btn-outline" style="margin-top: 1rem;">العودة للسجلات</a>
+
+{% else %}
+<div class="empty-state">
+    <h2>السجل غير موجود</h2>
+    <a href="/records" class="btn">العودة للسجلات</a>
+</div>
+{% endif %}
+{% endblock %}

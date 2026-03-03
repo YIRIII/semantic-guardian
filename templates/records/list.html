@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% set active = "records" %}
+{% block title %}السجلات - الحارس الدلالي{% endblock %}
+
+{% block content %}
+<h1 class="page-title">السجلات ({{ total }})</h1>
+
+<div class="filters-bar">
+    <form method="get" action="/records" class="filters-form">
+        <input type="text" name="q" value="{{ search }}" placeholder="بحث بالرقم أو المسمى..." class="input">
+        <select name="filter" class="input">
+            <option value="all" {% if filter_valid == 'all' %}selected{% endif %}>الكل</option>
+            <option value="valid" {% if filter_valid == 'valid' %}selected{% endif %}>صالح فقط</option>
+            <option value="invalid" {% if filter_valid == 'invalid' %}selected{% endif %}>غير صالح فقط</option>
+        </select>
+        <button type="submit" class="btn">بحث</button>
+    </form>
+    <a href="/api/export/csv" class="btn btn-outline">تصدير CSV</a>
+</div>
+
+{% if records %}
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>رقم السجل</th>
+                <th>المسمى الوظيفي</th>
+                <th>العمر</th>
+                <th>الخبرة</th>
+                <th>التعليم</th>
+                <th>الدخل</th>
+                <th>درجة الثقة</th>
+                <th>الحالة</th>
+                <th>طريقة التحقق</th>
+                <th>تفاصيل</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+            <tr>
+                <td>{{ rec.record_id }}</td>
+                <td>{{ rec.job_title }}</td>
+                <td>{{ rec.age }}</td>
+                <td>{{ rec.years_of_experience }}</td>
+                <td>{{ rec.education_level }}</td>
+                <td>{{ rec.monthly_income }}</td>
+                <td>
+                    <span class="trust-badge {% if rec.trust_score >= 0.7 %}trust-high{% elif rec.trust_score >= 0.4 %}trust-medium{% else %}trust-low{% endif %}">
+                        {{ "%.2f"|format(rec.trust_score) }}
+                    </span>
+                </td>
+                <td>
+                    {% if rec.is_valid %}
+                    <span class="badge badge-valid">صالح</span>
+                    {% else %}
+                    <span class="badge badge-invalid">غير صالح</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-method">{{ rec.validation_method }}</span></td>
+                <td><a href="/records/{{ rec.id }}" class="btn btn-sm">عرض</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="/records?page={{ page - 1 }}&q={{ search }}&filter={{ filter_valid }}" class="btn btn-sm">السابق</a>
+    {% endif %}
+    <span class="page-info">صفحة {{ page }} من {{ total_pages }}</span>
+    {% if page < total_pages %}
+    <a href="/records?page={{ page + 1 }}&q={{ search }}&filter={{ filter_valid }}" class="btn btn-sm">التالي</a>
+    {% endif %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>لا توجد سجلات مطابقة.</p>
+</div>
+{% endif %}
+{% endblock %}

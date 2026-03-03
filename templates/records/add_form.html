@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% set active = "add" %}
+{% block title %}إضافة سجل - الحارس الدلالي{% endblock %}
+
+{% block content %}
+<h1 class="page-title">إضافة سجل جديد</h1>
+
+<form hx-post="/api/records" hx-target="#result" hx-swap="innerHTML" class="form-card">
+    <div class="form-grid">
+        <div class="form-group">
+            <label>العمر</label>
+            <input type="number" name="age" min="14" max="99" value="25" required class="input">
+        </div>
+        <div class="form-group">
+            <label>الجنس</label>
+            <select name="gender" class="input">
+                <option value="ذكر">ذكر</option>
+                <option value="أنثى">أنثى</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>المؤهل التعليمي</label>
+            <select name="education_level" class="input">
+                <option value="ابتدائي">ابتدائي</option>
+                <option value="متوسط">متوسط</option>
+                <option value="ثانوي">ثانوي</option>
+                <option value="دبلوم">دبلوم</option>
+                <option value="بكالوريوس" selected>بكالوريوس</option>
+                <option value="ماجستير">ماجستير</option>
+                <option value="دكتوراه">دكتوراه</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>المسمى الوظيفي</label>
+            <input type="text" name="job_title" value="" placeholder="مثال: محاسب" class="input">
+        </div>
+        <div class="form-group">
+            <label>سنوات الخبرة</label>
+            <input type="number" name="years_of_experience" min="0" max="50" value="2" class="input">
+        </div>
+        <div class="form-group">
+            <label>ساعات العمل الأسبوعية</label>
+            <input type="number" name="weekly_working_hours" min="0" max="120" value="40" class="input">
+        </div>
+        <div class="form-group">
+            <label>نوع التوظيف</label>
+            <select name="employment_type" class="input">
+                <option value="دوام كامل" selected>دوام كامل</option>
+                <option value="دوام جزئي">دوام جزئي</option>
+                <option value="عمل حر">عمل حر</option>
+                <option value="منصات رقمية">منصات رقمية</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>الدخل الشهري</label>
+            <input type="text" name="monthly_income" value="" placeholder="مثال: 8000-10000" class="input">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">تحقق وأضف</button>
+</form>
+
+<div id="result" class="result-area"></div>
+{% endblock %}

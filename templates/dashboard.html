@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% set active = "dashboard" %}
+{% block title %}لوحة التحكم - الحارس الدلالي{% endblock %}
+
+{% block content %}
+<h1 class="page-title">لوحة التحكم</h1>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">إجمالي السجلات</div>
+        <div class="kpi-value">{{ kpis.total }}</div>
+    </div>
+    <div class="kpi-card kpi-valid">
+        <div class="kpi-label">صالح</div>
+        <div class="kpi-value">{{ kpis.valid }}</div>
+    </div>
+    <div class="kpi-card kpi-invalid">
+        <div class="kpi-label">غير صالح</div>
+        <div class="kpi-value">{{ kpis.invalid }}</div>
+    </div>
+    <div class="kpi-card kpi-trust">
+        <div class="kpi-label">متوسط الثقة</div>
+        <div class="kpi-value">{{ kpis.avg_trust }}</div>
+    </div>
+</div>
+
+{% if kpis.total > 0 %}
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3>توزيع درجات الثقة</h3>
+        <canvas id="trustHistogram"></canvas>
+    </div>
+    <div class="chart-card">
+        <h3>صالح مقابل غير صالح</h3>
+        <canvas id="validInvalidChart"></canvas>
+    </div>
+</div>
+
+{% if top_problems %}
+<div class="section">
+    <h2>أكثر السجلات إشكالية</h2>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>رقم السجل</th>
+                    <th>المسمى الوظيفي</th>
+                    <th>العمر</th>
+                    <th>درجة الثقة</th>
+                    <th>عدد المشاكل</th>
+                    <th>الحالة</th>
+                    <th>تفاصيل</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in top_problems %}
+                <tr>
+                    <td>{{ rec.record_id }}</td>
+                    <td>{{ rec.job_title }}</td>
+                    <td>{{ rec.age }}</td>
+                    <td>
+                        <span class="trust-badge {% if rec.trust_score >= 0.7 %}trust-high{% elif rec.trust_score >= 0.4 %}trust-medium{% else %}trust-low{% endif %}">
+                            {{ "%.2f"|format(rec.trust_score) }}
+                        </span>
+                    </td>
+                    <td>{{ rec.issues_count }}</td>
+                    <td>
+                        {% if rec.is_valid %}
+                        <span class="badge badge-valid">صالح</span>
+                        {% else %}
+                        <span class="badge badge-invalid">غير صالح</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="/records/{{ rec.id }}" class="btn btn-sm">عرض</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% else %}
+<div class="empty-state">
+    <h2>لا توجد سجلات بعد</h2>
+    <p>قم <a href="/upload">برفع ملف</a> أو <a href="/records/add">إضافة سجل يدويًا</a> للبدء.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if kpis.total > 0 %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadTrustHistogram('trustHistogram', '/api/charts/trust-distribution');
+    loadDoughnutChart('validInvalidChart', '/api/charts/valid-invalid');
+});
+</script>
+{% endif %}
+{% endblock %}

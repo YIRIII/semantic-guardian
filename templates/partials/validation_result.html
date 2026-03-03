@@ -1,0 +1,46 @@
+{% if batch %}
+<div class="result-card result-success">
+    <h3>تم التحقق بنجاح</h3>
+    <p>الملف: {{ batch.filename }}</p>
+    <p>عدد السجلات: {{ total }}</p>
+    <p>الحالة: {{ batch.status }}</p>
+    <a href="/records" class="btn" style="margin-top: 0.5rem;">عرض السجلات</a>
+    <a href="/" class="btn btn-outline" style="margin-top: 0.5rem;">لوحة التحكم</a>
+</div>
+{% elif record %}
+<div class="result-card {% if record.is_valid %}result-success{% else %}result-warning{% endif %}">
+    <h3>نتيجة التحقق</h3>
+    <div class="kpi-grid" style="margin: 1rem 0;">
+        <div class="kpi-card kpi-trust">
+            <div class="kpi-label">درجة الثقة</div>
+            <div class="kpi-value">{{ "%.3f"|format(trust) }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">الحالة</div>
+            <div class="kpi-value" style="font-size: 1rem;">{% if record.is_valid %}صالح{% else %}غير صالح{% endif %}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">طريقة التحقق</div>
+            <div class="kpi-value" style="font-size: 1rem;">{{ method }}</div>
+        </div>
+    </div>
+
+    {% if issues %}
+    <h4>المشاكل المكتشفة ({{ issues|length }})</h4>
+    {% for iss in issues %}
+    <div class="issue-card severity-{{ iss.severity }}">
+        <div class="issue-header">
+            <span class="severity-badge severity-{{ iss.severity }}">{{ iss.severity }}</span>
+            <span class="issue-confidence">ثقة: {{ "%.0f"|format(iss.confidence * 100) }}%</span>
+        </div>
+        <div class="issue-fields">الحقول: {{ iss.fields | join(', ') }}</div>
+        <div class="issue-desc">{{ iss.description_ar }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>لا توجد مشاكل مكتشفة.</p>
+    {% endif %}
+
+    <a href="/records/{{ record.id }}" class="btn" style="margin-top: 0.5rem;">عرض التفاصيل</a>
+</div>
+{% endif %}
